@@ -1,0 +1,26 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Handle client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# API proxy (optional - you can also call EC2 directly)
+[[redirects]]
+  from = "/api/*"
+  to = "http://your-ec2-ip:3000/api/:splat"
+  status = 200
+  force = true
+
+# WebSocket proxy (if needed)
+[[redirects]]
+  from = "/ws"
+  to = "http://your-ec2-ip:3000/ws"
+  status = 200
+  force = true 
