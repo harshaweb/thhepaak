@@ -1128,8 +1128,8 @@ export default function GamePage() {
 
     // Use environment-based WebSocket URL
     const wsUrl = import.meta.env.PROD 
-      ? import.meta.env.VITE_WS_URL || 'ws://your-ec2-ip:3000/ws'
-      : 'ws://localhost:5174/ws';
+      ? import.meta.env.VITE_WS_URL || 'ws://localhost:3000/ws'
+      : 'ws://localhost:5173/ws';
     
     const ws = new WebSocket(`${wsUrl}?region=${region}&room=${roomId}`);
 
@@ -1380,7 +1380,7 @@ export default function GamePage() {
           if (gameStarted && !wsRef.current) {
             console.log("Auto-reconnecting to multiplayer server...");
             // Create new WebSocket connection
-                         const newSocket = new WebSocket(`ws://localhost:5174/ws?room=${roomId}&region=${region}`);
+                         const newSocket = new WebSocket(`ws://localhost:5173/ws?room=${roomId}&region=${region}`);
             wsRef.current = newSocket;
             
             // Set up handlers for new connection

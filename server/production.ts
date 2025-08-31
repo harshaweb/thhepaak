@@ -13,7 +13,8 @@ app.use((req, res, next) => {
     ? [
         process.env.FRONTEND_URL || 'https://your-app.netlify.app',
         'https://your-app.netlify.app',
-        'http://localhost:3000' // For local testing
+        'http://localhost:3000', // For local testing
+        'http://localhost:5173'
       ]
     : ['*'];
   
@@ -89,7 +90,7 @@ app.use(express.static('public'));
   });
 
   // Production port configuration
-  const port = parseInt(process.env.PORT || '3000', 10);
+  const port = parseInt(process.env.PORT || '5174', 10);
   const host = '0.0.0.0'; // Listen on all interfaces for production
 
   server.listen(port, host, () => {
