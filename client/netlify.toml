@@ -14,13 +14,13 @@
 # API proxy (optional - you can also call EC2 directly)
 [[redirects]]
   from = "/api/*"
-  to = "http://your-ec2-ip:3000/api/:splat"
+  to = "http://your-ec2-ip:5174/api/:splat"
   status = 200
   force = true
 
 # WebSocket proxy (if needed)
 [[redirects]]
   from = "/ws"
-  to = "http://your-ec2-ip:3000/ws"
+  to = "http://your-ec2-ip:5174/ws"
   status = 200
   force = true 

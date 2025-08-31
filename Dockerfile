@@ -1,20 +1,20 @@
-# Use official Node.js image as the base
-FROM node:18-alpine
+# Use official Node.js image
+FROM node
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json first (for better caching)
+# Copy only package.json + lock file for dependencies
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --production
+# Install only production dependencies
+RUN npm install --only=production
 
-# Copy the rest of the application code
-COPY . .
+# Copy only the compiled file
+COPY dist/production.cjs ./production.cjs
 
-# Expose the port your app runs on
-EXPOSE 3000
+# Set NODE_ENV to production
+ENV NODE_ENV=production
 
-# Command to run your app
-CMD ["npm", "run", "start:dev"]
+# Run the production file
+CMD ["node", "production.cjs"]
