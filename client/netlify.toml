@@ -14,13 +14,13 @@
 # API proxy (optional - you can also call EC2 directly)
 [[redirects]]
   from = "/api/*"
-  to = "http://your-ec2-ip:5174/api/:splat"
+  to = "https://thhepaak.onrender.com/api/:splat"
   status = 200
   force = true
 
 # WebSocket proxy (if needed)
 [[redirects]]
   from = "/ws"
-  to = "http://your-ec2-ip:5174/ws"
+  to = "https://thhepaak.onrender.com/ws"
   status = 200
   force = true 
