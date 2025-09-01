@@ -2,9 +2,9 @@ import { QueryClient } from '@tanstack/react-query';
 
 const getBackendUrl = () => {
   if (import.meta.env.PROD) {
-    return import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    return import.meta.env.VITE_BACKEND_URL || 'https://thhepaak.onrender.com';
   }
-  return 'http://localhost:5173';
+  return 'https://thhepaak.onrender.com';
 };
 
 const fullUrl = (path: string) => {

@@ -14,7 +14,8 @@ app.use((req, res, next) => {
         process.env.FRONTEND_URL || 'https://your-app.netlify.app',
         'https://your-app.netlify.app',
         'http://localhost:3000', // For local testing
-        'http://localhost:5173'
+        'http://localhost:5173',
+        'https://pumpfungames.daucu.com'
       ]
     : ['*'];
   
