@@ -1040,7 +1040,8 @@ app.use((req, res, next) => {
     "https://your-app.netlify.app",
     "http://localhost:3000",
     // For local testing
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "https://pumpfungames.daucu.com"
   ] : ["*"];
   const origin = req.get("origin");
   if (allowedOrigins.includes("*") || origin && allowedOrigins.includes(origin)) {
