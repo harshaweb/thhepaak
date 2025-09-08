@@ -64,12 +64,8 @@ export default function DailyRewardModal({ isOpen, onClose, onClaim, canClaim, h
       setHasSpun(true);
       setIsSpinning(false);
       
-      // Call the original onClaim function with the actual reward amount
-      try {
-        await onClaim(selectedReward.value);
-      } catch (error) {
-        console.error('Failed to claim reward:', error);
-      }
+      // Don't call onClaim immediately - let user see the congratulations first
+      // onClaim will be called when user clicks "Awesome!" button
     }, 3000); // 3 seconds for spin animation
   };
 
@@ -118,7 +114,16 @@ export default function DailyRewardModal({ isOpen, onClose, onClaim, canClaim, h
                 </p>
               </div>
               <Button
-                onClick={onClose}
+                onClick={async () => {
+                  try {
+                    if (wonReward) {
+                      await onClaim(wonReward.value);
+                    }
+                  } catch (error) {
+                    console.error('Failed to claim reward:', error);
+                  }
+                  onClose();
+                }}
                 className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 font-retro-fixed py-3 text-white rounded-xl border-4 border-green-400 text-lg font-bold tracking-wide shadow-lg hover:shadow-green-500/25 transition-all duration-200"
               >
                 Awesome!

@@ -213,7 +213,7 @@ class DecorativeSnake {
 }
 
 export default function Home() {
-  const { user, login, register, logout, updateUser, updateUsername, placeBet, winBet, loseBet } = useAuth();
+  const { user, login, register, logout, updateUser, updateUsername, placeBet, winBet, loseBet, refreshUser } = useAuth();
   const [, setLocation] = useLocation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -1118,7 +1118,34 @@ export default function Home() {
 
             {/* Right Panel - Wallet */}
             <div className="bg-gray-800 p-3 border-2 border-gray-600 flex flex-col self-start">
-              <h3 className="text-white text-sm mb-3 font-retro">Wallet</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-white text-sm font-retro">Wallet</h3>
+                {user && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await refreshUser();
+                        toast({
+                          title: "Balance Refreshed",
+                          description: "Wallet balance updated from server",
+                        });
+                      } catch (error) {
+                        toast({
+                          title: "Refresh Failed",
+                          description: "Failed to refresh balance",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="text-gray-400 hover:text-white transition-colors"
+                    title="Refresh balance"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+                )}
+              </div>
               
               {/* Balance Display */}
               <div className="font-bold text-lg mb-3 text-center bg-gray-900 py-3 border-2 border-gray-600 font-retro" style={{color: '#53d493'}}>
