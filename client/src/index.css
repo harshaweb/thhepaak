@@ -11,6 +11,17 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* Fixed retro font for modals - no rotation */
+.font-retro-fixed {
+  font-family: 'Press Start 2P', monospace;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  transform: none !important;
+  text-orientation: mixed !important;
+  writing-mode: horizontal-tb !important;
+  direction: ltr !important;
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(20, 14.3%, 4.1%);

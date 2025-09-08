@@ -14,12 +14,12 @@ interface DailyRewardModalProps {
 const spinRewards = [
   { label: '$0.10', value: 0.10, color: '#10b981' },
   { label: '$0.50', value: 0.50, color: '#ef4444' },
-  { label: '$1.00', value: 1.00, color: '#3b82f6' },
-  { label: '$5.00', value: 5.00, color: '#8b5cf6' },
-  { label: '$10.00', value: 10.00, color: '#f59e0b' },
-  { label: '$100.00', value: 100.00, color: '#06b6d4' },
-  { label: '$500.00', value: 500.00, color: '#f97316' },
-  { label: '$1000.00', value: 1000.00, color: '#eab308' },
+  { label: '$1', value: 1.00, color: '#3b82f6' },
+  { label: '$5', value: 5.00, color: '#8b5cf6' },
+  { label: '$10', value: 10.00, color: '#f59e0b' },
+  { label: '$100', value: 100.00, color: '#06b6d4' },
+  { label: '$500', value: 500.00, color: '#f97316' },
+  { label: '$1000', value: 1000.00, color: '#eab308' },
 ];
 
 export default function DailyRewardModal({ isOpen, onClose, onClaim, canClaim, hoursUntilNext }: DailyRewardModalProps) {
@@ -75,19 +75,19 @@ export default function DailyRewardModal({ isOpen, onClose, onClaim, canClaim, h
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-2 border-green-500 text-white max-w-lg w-full mx-4 rounded-xl shadow-2xl [&>button]:hidden">
+      <DialogContent className="bg-gradient-to-br from-gray-800 to-gray-900 border-4 border-green-400 text-white max-w-md w-full mx-4 rounded-2xl shadow-2xl [&>button]:hidden">
         {/* Header */}
-        <DialogHeader className="pb-4 border-b border-green-500/30">
+        <DialogHeader className="pb-4 border-b-2 border-green-400/50">
           <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-3 font-retro text-xl text-green-400">
-              <Gift className="w-6 h-6" />
+            <DialogTitle className="flex items-center gap-2 font-retro text-lg text-green-300 tracking-wide">
+              <Gift className="w-5 h-5" />
               Daily Spin Wheel
             </DialogTitle>
             <button 
               onClick={onClose}
-              className="p-2 hover:bg-gray-800 rounded-lg transition-colors border-2 border-gray-600 hover:border-green-500"
+              className="p-2 hover:bg-gray-700 rounded-lg transition-colors border-2 border-gray-500 hover:border-green-400 bg-gray-800"
             >
-              <X className="w-5 h-5 text-gray-400 hover:text-green-400" />
+              <X className="w-5 h-5 text-gray-300 hover:text-green-300" />
             </button>
           </div>
         </DialogHeader>
@@ -106,18 +106,20 @@ export default function DailyRewardModal({ isOpen, onClose, onClaim, canClaim, h
             </div>
           ) : hasSpun ? (
             <div className="text-center space-y-4">
-              <div className="bg-green-900/30 border-2 border-green-500/50 rounded-lg p-6">
-                <div className="text-green-400 text-3xl font-retro mb-4">🎉 Congratulations! 🎉</div>
-                <div className="text-white font-retro text-2xl mb-2">
-                  You won: <span className="text-yellow-400 font-bold">{wonReward?.label}</span>
+              <div className="bg-gradient-to-br from-green-800/40 to-green-900/60 border-4 border-green-400 rounded-2xl p-6 shadow-2xl max-w-sm mx-auto">
+                <div className="text-green-300 text-lg mb-4 tracking-wider text-center font-retro-fixed">
+                  🎉 Congratulations!
                 </div>
-                <p className="text-gray-300 font-retro text-sm">
+                <div className="text-white text-xl mb-3 tracking-wide text-center font-retro-fixed">
+                  You won: <span className="text-yellow-300 font-bold text-2xl">{wonReward?.label}</span>
+                </div>
+                <p className="text-gray-200 text-sm tracking-wide text-center font-retro-fixed">
                   Added to your balance!
                 </p>
               </div>
               <Button
                 onClick={onClose}
-                className="w-full bg-green-600 hover:bg-green-700 font-retro py-3 text-white rounded-lg border-2 border-green-500 text-lg"
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 font-retro-fixed py-3 text-white rounded-xl border-4 border-green-400 text-lg font-bold tracking-wide shadow-lg hover:shadow-green-500/25 transition-all duration-200"
               >
                 Awesome!
               </Button>
@@ -135,7 +137,7 @@ export default function DailyRewardModal({ isOpen, onClose, onClaim, canClaim, h
                   {/* Wheel */}
                   <div 
                     ref={wheelRef}
-                    className="w-80 h-80 rounded-full border-4 border-white relative overflow-hidden"
+                    className="w-80 h-80 rounded-full relative overflow-hidden"
                     style={{
                       transition: isSpinning ? 'transform 3s cubic-bezier(0.23, 1, 0.32, 1)' : 'none',
                     }}
