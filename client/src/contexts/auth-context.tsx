@@ -21,6 +21,7 @@ interface AuthContextType {
   winBet: (betAmount: number, winnings: number) => Promise<void>;
   loseBet: (betAmount: number) => Promise<void>;
   getWalletInfo: () => Promise<{ balance: number; holdBalance: number; availableBalance: number }>;
+  refreshUser: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -255,6 +256,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshUser = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(fullUrl(`/api/wallet/${user.id}`), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to refresh user data');
+      }
+
+      const walletData = await response.json();
+      
+      // Update user with fresh data from backend
+      const updatedUser = {
+        ...user,
+        balance: walletData.balance,
+        holdBalance: walletData.holdBalance
+      };
+      
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    } catch (error) {
+      console.error('Refresh user error:', error);
+      throw error;
+    }
+  };
+
     return (
     <AuthContext.Provider value={{ 
       user, 
@@ -267,6 +300,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       winBet,
       loseBet,
       getWalletInfo,
+      refreshUser,
       isLoading
     }}>
       {children}

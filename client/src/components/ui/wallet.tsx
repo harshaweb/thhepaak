@@ -9,7 +9,7 @@ import { fullUrl } from "@/lib/queryClient";
 import { Copy, RefreshCw, Plus, DollarSign } from "lucide-react";
 
 export function Wallet() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, refreshUser } = useAuth();
   const { toast } = useToast();
   const [isAddFundsOpen, setIsAddFundsOpen] = useState(false);
   const [isCashOutOpen, setIsCashOutOpen] = useState(false);
@@ -31,11 +31,16 @@ export function Wallet() {
   const handleRefreshBalance = async () => {
     setIsRefreshing(true);
     try {
-      // Simulate balance refresh - in real app would call blockchain API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await refreshUser();
       toast({
         title: "Balance Refreshed",
-        description: "Wallet balance has been updated",
+        description: "Wallet balance has been updated from server",
+      });
+    } catch (error) {
+      toast({
+        title: "Refresh Failed",
+        description: "Failed to refresh balance from server",
+        variant: "destructive",
       });
     } finally {
       setIsRefreshing(false);
