@@ -64,13 +64,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Daily reward endpoint
   app.post("/api/auth/claim-daily-reward", (req, res) => {
     try {
-      const { username } = req.body;
+      const { username, rewardAmount } = req.body;
 
       if (!username) {
         return res.status(400).json({ message: "Username required" });
       }
 
-      const result = updateDailyRewardClaim(username);
+      const result = updateDailyRewardClaim(username, rewardAmount);
       
       if (result.success) {
         res.json({ 

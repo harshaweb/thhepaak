@@ -470,7 +470,7 @@ export default function Home() {
   };
 
   // Handle daily reward claim
-  const handleClaimDailyReward = async () => {
+  const handleClaimDailyReward = async (rewardAmount: number = 0.10) => {
     if (!user) return;
 
     try {
@@ -479,7 +479,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: user.username }),
+        body: JSON.stringify({ username: user.username, rewardAmount }),
       });
       
       if (!response.ok) {

@@ -86,7 +86,8 @@
     "id": "1756662786260",
     "username": "harshawweb2",
     "password": "7388139606",
-    "balance": 0,
-    "holdBalance": 0
+    "balance": 0.1,
+    "holdBalance": 0,
+    "lastDailyRewardClaim": "2025-09-08T23:40:55.310Z"
   }
 ]

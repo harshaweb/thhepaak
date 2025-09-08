@@ -93,7 +93,7 @@ export function getUser(username: string): SimpleUser | null {
 }
 
 // Update user's daily reward claim time
-export function updateDailyRewardClaim(username: string): { success: boolean; message: string; user?: SimpleUser } {
+export function updateDailyRewardClaim(username: string, rewardAmount: number = 0.10): { success: boolean; message: string; user?: SimpleUser } {
   const users = loadUsers();
   const userIndex = users.findIndex(u => u.username === username);
   
@@ -121,7 +121,7 @@ export function updateDailyRewardClaim(username: string): { success: boolean; me
 
   // Update the last claim time and add reward
   users[userIndex].lastDailyRewardClaim = now;
-  users[userIndex].balance += 0.20; // $0.10 base + $0.10 bonus
+  users[userIndex].balance += rewardAmount;
   
   saveUsers(users);
   

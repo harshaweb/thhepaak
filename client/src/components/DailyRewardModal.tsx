@@ -6,7 +6,7 @@ import { Gift, X } from 'lucide-react';
 interface DailyRewardModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onClaim: () => void;
+  onClaim: (rewardAmount: number) => void;
   canClaim: boolean;
   hoursUntilNext: number;
 }
@@ -64,9 +64,9 @@ export default function DailyRewardModal({ isOpen, onClose, onClaim, canClaim, h
       setHasSpun(true);
       setIsSpinning(false);
       
-      // Call the original onClaim function
+      // Call the original onClaim function with the actual reward amount
       try {
-        await onClaim();
+        await onClaim(selectedReward.value);
       } catch (error) {
         console.error('Failed to claim reward:', error);
       }
@@ -131,7 +131,7 @@ export default function DailyRewardModal({ isOpen, onClose, onClaim, canClaim, h
                 <div className="relative">
                   {/* Pointer */}
                   <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-10">
-                    <div className="w-0 h-0 border-l-[15px] border-r-[15px] border-b-[25px] border-l-transparent border-r-transparent border-b-white"></div>
+                    <div className="w-0 h-0 border-l-[15px] border-r-[15px] border-t-[25px] border-l-transparent border-r-transparent border-t-white"></div>
                   </div>
                   
                   {/* Wheel */}
