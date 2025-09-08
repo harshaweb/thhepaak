@@ -15,6 +15,8 @@ import BalanceWarningModal from "@/components/BalanceWarningModal";
 import DailyRewardModal from "@/components/DailyRewardModal";
 import TopUpModal from "@/components/TopUpModal";
 import WithdrawModal from "@/components/WithdrawModal";
+import Leaderboard from "@/components/Leaderboard";
+import LeaderboardModal from "@/components/LeaderboardModal";
 
 import { fullUrl } from "@/lib/queryClient";
 import { 
@@ -357,6 +359,7 @@ export default function Home() {
   // Wallet modal states
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false);
 
   // Username editing states
   const [isEditingUsername, setIsEditingUsername] = useState(false);
@@ -539,6 +542,7 @@ export default function Home() {
     if (!user || !newUsername.trim()) return;
     
     try {
+      console.log('Current user:', user);
       await updateUsername(newUsername.trim());
       setIsEditingUsername(false);
       toast({
@@ -546,6 +550,7 @@ export default function Home() {
         description: `Your username has been changed to "${newUsername.trim()}"`,
       });
     } catch (error) {
+      console.error('Username update error in home:', error);
       toast({
         title: "Update Failed",
         description: error instanceof Error ? error.message : "Failed to update username",
@@ -871,36 +876,55 @@ export default function Home() {
           <div className="grid grid-cols-3 gap-6 max-w-5xl mx-auto">
             
             {/* Left Panel - Leaderboard */}
-            <div className="bg-gray-800 p-3 border-2 border-gray-600 flex flex-col self-start">
-              <h3 className="text-yellow-400 text-sm mb-2 font-retro flex items-center">
-                🏆 Leaderboard
-              </h3>
-              <div className="text-white text-xs space-y-1 font-retro mb-3">
-                <div className="flex justify-between items-center">
-                  <span className="truncate">1. TokyOnTop</span>
-                  <span style={{color: '#53d493'}}>${1600}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="truncate">2. Sergio_Jew</span>
-                  <span style={{color: '#53d493'}}>${1255}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="truncate">3. 1$_to_1k</span>
-                  <span style={{color: '#53d493'}}>${964}</span>
-                </div>
-              </div>
-              <button className="bg-gray-700 text-white px-2 py-1 text-sm border-2 border-gray-600 hover:bg-gray-600 font-retro w-full">
-                View Full Board
-              </button>
-            </div>
+            <Leaderboard onViewFull={() => setIsLeaderboardModalOpen(true)} />
 
             {/* Center Panel - Game Controls */}
             <div className="bg-gray-800 p-3 border-2 border-gray-600">
               
               {/* Username with edit icon */}
               <div className="flex items-center justify-between mb-3 bg-gray-700 px-3 py-2 border-2 border-gray-600">
-                <span className="text-gray-300 font-retro text-xs">〈Username〉</span>
-                <Edit3 className="w-3 h-3 text-gray-400 hover:text-white cursor-pointer" />
+                {isEditingUsername ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <Input
+                      value={newUsername}
+                      onChange={(e) => setNewUsername(e.target.value)}
+                      className="text-xs font-retro bg-gray-800 border-green-500 text-white px-2 py-1 h-6 flex-1"
+                      placeholder="Enter username"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSaveUsername();
+                        } else if (e.key === 'Escape') {
+                          handleCancelEditUsername();
+                        }
+                      }}
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleSaveUsername}
+                      className="bg-green-600 hover:bg-green-700 text-white px-1 py-1 text-xs border border-green-500 font-retro"
+                    >
+                      ✓
+                    </button>
+                    <button
+                      onClick={handleCancelEditUsername}
+                      className="bg-red-600 hover:bg-red-700 text-white px-1 py-1 text-xs border border-red-500 font-retro"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <span className="text-gray-300 font-retro text-xs">
+                      {user ? user.username : '〈Username〉'}
+                    </span>
+                    <button
+                      onClick={handleStartEditUsername}
+                      className="text-gray-400 hover:text-white cursor-pointer"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                    </button>
+                  </>
+                )}
               </div>
               
               {/* Bet Amount Selection */}
@@ -1034,12 +1058,6 @@ export default function Home() {
                   >
                     <span className="text-sm">👥</span>
                     <span>{user ? 'Friends' : 'Login Required'}</span>
-                    {/* Friend Request Notification Badge */}
-                    {user && (
-                      <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold border-2 border-white shadow-lg">
-                        2
-                      </div>
-                    )}
                   </button>
                 </div>
               </div>
@@ -1293,6 +1311,11 @@ export default function Home() {
         onClose={() => setIsWithdrawModalOpen(false)}
         currentBalance={user ? Number(user.balance) : 0}
         onWithdrawComplete={handleWithdrawComplete}
+      />
+      
+      <LeaderboardModal
+        isOpen={isLeaderboardModalOpen}
+        onClose={() => setIsLeaderboardModalOpen(false)}
       />
     </div>
   );

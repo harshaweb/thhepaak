@@ -111,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) throw new Error('No user logged in');
     
     try {
+      console.log('Updating username for user:', user.id, 'to:', newUsername);
       const response = await fetch(fullUrl('/api/auth/update-username'), {
         method: 'POST',
         headers: {
@@ -120,7 +121,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        throw new Error('Username update failed');
+        const errorData = await response.json();
+        console.error('Username update failed:', errorData);
+        
+        // If user not found, try to register a new user with the new username
+        if (errorData.message === 'User not found') {
+          console.log('User not found in backend, creating new user...');
+          const registerResponse = await fetch(fullUrl('/api/auth/register'), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username: newUsername, password: 'temp123' }),
+          });
+          
+          if (registerResponse.ok) {
+            const registerData = await registerResponse.json();
+            setUser(registerData.user);
+            localStorage.setItem('user', JSON.stringify(registerData.user));
+            return;
+          }
+        }
+        
+        throw new Error(errorData.message || 'Username update failed');
       }
 
       const data = await response.json();

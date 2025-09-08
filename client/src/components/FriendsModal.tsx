@@ -23,15 +23,8 @@ interface FriendsModalProps {
 }
 
 export default function FriendsModal({ isOpen, onClose }: FriendsModalProps) {
-  const [friends, setFriends] = useState<Friend[]>([
-    { id: '1', username: 'SnakeGamer123', isOnline: true, isPlaying: false },
-    { id: '2', username: 'ProPlayer', isOnline: true, isPlaying: true },
-    { id: '3', username: 'CoolDude', isOnline: false, isPlaying: false },
-  ]);
-  const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([
-    { id: '1', username: 'NewPlayer99', timestamp: '2 min ago' },
-    { id: '2', username: 'GameMaster', timestamp: '5 min ago' },
-  ]);
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
   const [newFriendUsername, setNewFriendUsername] = useState('');
   const [isAddingFriend, setIsAddingFriend] = useState(false);
 
@@ -213,7 +206,7 @@ export default function FriendsModal({ isOpen, onClose }: FriendsModalProps) {
             >
               Close
             </Button>
-            {friends.some(f => f.isOnline) && (
+            {friends.length > 0 && friends.some(f => f.isOnline) && (
               <Button
                 onClick={() => {/* TODO: Implement invite to game */}}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-retro py-3 rounded-lg border-2 border-blue-500"

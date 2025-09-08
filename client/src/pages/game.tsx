@@ -2761,12 +2761,7 @@ export default function GamePage() {
             ctx.lineWidth = 3 * scaleFactor;
             ctx.textAlign = "center";
             
-            const moneyText = `$${serverPlayer.money?.toFixed(2) || '1.00'}`;
-            const offsetY = 20 * scaleFactor; // Scale the offset with snake size
-            
-            // Draw text outline for better visibility
-            ctx.strokeText(moneyText, head.x, head.y - offsetY);
-            ctx.fillText(moneyText, head.x, head.y - offsetY);
+            // Money text removed - no longer displaying above server players
             ctx.restore();
             
             // Cash-out progress indicator above head
@@ -2990,8 +2985,8 @@ export default function GamePage() {
         // Reset global alpha
         ctx.globalAlpha = 1.0;
 
-        // Draw money balance above snake head
-        if (snake.visibleSegments.length > 0) {
+        // Draw cash-out progress bar above snake head (without money text)
+        if (snake.visibleSegments.length > 0 && cashingOut) {
           const snakeHead = snake.visibleSegments[0];
           
           // Cap the scaling at 4 mass equivalent
@@ -3000,39 +2995,23 @@ export default function GamePage() {
           const cappedMass = Math.min(snake.visibleSegments.length, maxMass);
           const scaleFactor = Math.max(0.8, cappedMass / baseMass);
           
-          ctx.font = `${Math.floor(10 * scaleFactor)}px 'Press Start 2P', monospace`;
-          ctx.fillStyle = "#ffffff";
-          ctx.strokeStyle = "#000000";
-          ctx.lineWidth = 3 * scaleFactor;
-          ctx.textAlign = "center";
+          const barWidth = 40 * scaleFactor; // Smaller width
+          const barHeight = 3 * scaleFactor; // Smaller height
+          const barX = snakeHead.x - barWidth / 2;
+          const barY = snakeHead.y - 20 * scaleFactor; // Position above snake head
           
-          const moneyText = `$${snake.money.toFixed(2)}`;
-          const offsetY = 20 * scaleFactor; // Scale the offset with snake size
+          // Background bar
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+          ctx.fillRect(barX, barY, barWidth, barHeight);
           
-          // Draw text outline for better visibility
-          ctx.strokeText(moneyText, snakeHead.x, snakeHead.y - offsetY);
-          ctx.fillText(moneyText, snakeHead.x, snakeHead.y - offsetY);
+          // Progress bar
+          ctx.fillStyle = '#53d493'; // Green progress
+          ctx.fillRect(barX, barY, barWidth * cashOutProgress, barHeight);
           
-          // Draw cash-out progress bar under money counter
-          if (cashingOut) {
-            const barWidth = 40 * scaleFactor; // Smaller width
-            const barHeight = 3 * scaleFactor; // Smaller height
-            const barX = snakeHead.x - barWidth / 2;
-            const barY = snakeHead.y - offsetY + 15; // Closer to money counter
-            
-            // Background bar
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-            ctx.fillRect(barX, barY, barWidth, barHeight);
-            
-            // Progress bar
-            ctx.fillStyle = '#53d493'; // Green progress
-            ctx.fillRect(barX, barY, barWidth * cashOutProgress, barHeight);
-            
-            // Border
-            ctx.strokeStyle = '#134242';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(barX, barY, barWidth, barHeight);
-          }
+          // Border
+          ctx.strokeStyle = '#134242';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(barX, barY, barWidth, barHeight);
         }
 
         // Draw eyes that track the cursor smoothly (after head is drawn)
