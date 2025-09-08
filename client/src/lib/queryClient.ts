@@ -4,7 +4,7 @@ const getBackendUrl = () => {
   if (import.meta.env.PROD) {
     return import.meta.env.VITE_BACKEND_URL || 'https://thhepaak.onrender.com';
   }
-  return 'https://thhepaak.onrender.com';
+  return 'http://localhost:3000';
 };
 
 const fullUrl = (path: string) => {
