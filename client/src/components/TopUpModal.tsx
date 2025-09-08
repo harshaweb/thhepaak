@@ -60,6 +60,7 @@ export default function TopUpModal({ isOpen, onClose, currentBalance, onTopUpCom
   const [topUpAmount, setTopUpAmount] = useState<string>('');
   const [step, setStep] = useState<'amount' | 'payment'>('amount');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [solPrice, setSolPrice] = useState<number>(0);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -67,6 +68,24 @@ export default function TopUpModal({ isOpen, onClose, currentBalance, onTopUpCom
   const WALLETS = {
     SOL: '3XVzfnAsvCPjTm4LJKaVWJVMWMYAbNRra3twrzBaokJv',
     ETH: '0x19574FF4c4b0eE2785DbBE57944C498f33377078'
+  };
+
+  // Fetch SOL price when modal opens
+  React.useEffect(() => {
+    if (isOpen && solPrice === 0) {
+      fetchSOLPrice();
+    }
+  }, [isOpen, solPrice]);
+
+  const fetchSOLPrice = async () => {
+    try {
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+      const data = await response.json();
+      setSolPrice(data.solana?.usd || 0);
+    } catch (error) {
+      console.error('Failed to fetch SOL price:', error);
+      setSolPrice(0);
+    }
   };
 
   const copyToClipboard = (text: string, type: string) => {
@@ -98,10 +117,10 @@ export default function TopUpModal({ isOpen, onClose, currentBalance, onTopUpCom
       return;
     }
 
-    if (amount > 1000) {
+    if (amount > 10000) {
       toast({
         title: "Maximum Amount",
-        description: "Maximum top-up amount is $1,000.00",
+        description: "Maximum top-up amount is $10,000.00",
         variant: "destructive"
       });
       return;
@@ -218,12 +237,17 @@ export default function TopUpModal({ isOpen, onClose, currentBalance, onTopUpCom
                 onChange={(e) => setTopUpAmount(e.target.value)}
                 className="px-3 py-2 bg-gray-800 border-2 border-gray-600 focus:border-green-500 text-white font-retro text-xs"
                 min="1"
-                max="1000"
+                max="10000"
                 step="0.01"
               />
               <p className="text-gray-500 font-retro text-xs mt-1">
-                Min: $1.00 • Max: $1,000.00
+                Min: $1.00 • Max: $10,000.00
               </p>
+              {topUpAmount && solPrice > 0 && (
+                <p className="text-blue-400 font-retro text-xs mt-1">
+                  ≈ {(parseFloat(topUpAmount) / solPrice).toFixed(4)} SOL
+                </p>
+              )}
             </div>
 
             <Button
@@ -239,6 +263,11 @@ export default function TopUpModal({ isOpen, onClose, currentBalance, onTopUpCom
             <div className="bg-gray-800 rounded-lg p-3 border border-gray-600 text-center">
               <p className="text-gray-300 text-xs mb-1 font-retro">Amount to Pay</p>
               <p className="text-green-400 text-xl font-retro">${parseFloat(topUpAmount).toFixed(2)}</p>
+              {solPrice > 0 && (
+                <p className="text-blue-400 text-sm font-retro mt-1">
+                  ≈ {(parseFloat(topUpAmount) / solPrice).toFixed(4)} SOL
+                </p>
+              )}
             </div>
 
             <div className="space-y-3 max-h-80 overflow-y-auto">
