@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
-import { registerUser, loginUser, updateDailyRewardClaim, updateUsername, placeBet, winBet, loseBet } from "./simple-auth";
+import { registerUser, loginUser, updateDailyRewardClaim, updateUsername, placeBet, winBet, loseBet, loadUsers, saveUsers } from "./simple-auth";
 import { verifyPayment } from './payment-verification';
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -108,6 +108,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Username update error:', error);
       res.status(400).json({ message: "Failed to update username" });
+    }
+  });
+
+  // Add funds to user wallet endpoint
+  app.post("/api/wallet/add-funds", (req, res) => {
+    try {
+      const { userId, amount } = req.body;
+
+      if (!userId || !amount) {
+        return res.status(400).json({ message: "User ID and amount required" });
+      }
+
+      if (amount <= 0) {
+        return res.status(400).json({ message: "Amount must be greater than 0" });
+      }
+
+      if (amount > 10000) {
+        return res.status(400).json({ message: "Maximum top-up amount is $10,000" });
+      }
+
+      const users = loadUsers();
+      const userIndex = users.findIndex(u => u.id === userId);
+      
+      if (userIndex === -1) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Add funds to user balance
+      users[userIndex].balance += amount;
+      saveUsers(users);
+      
+      res.json({ 
+        success: true,
+        message: `Successfully added $${amount.toFixed(2)} to your wallet`,
+        newBalance: users[userIndex].balance,
+        user: { ...users[userIndex], password: '' }
+      });
+    } catch (error) {
+      console.error('Add funds error:', error);
+      res.status(500).json({ message: "Failed to add funds" });
+    }
+  });
+
+  // Get user wallet info endpoint
+  app.get("/api/wallet/:userId", (req, res) => {
+    try {
+      const { userId } = req.params;
+
+      if (!userId) {
+        return res.status(400).json({ message: "User ID required" });
+      }
+
+      const users = loadUsers();
+      const user = users.find(u => u.id === userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ 
+        balance: user.balance,
+        holdBalance: user.holdBalance,
+        availableBalance: user.balance - user.holdBalance
+      });
+    } catch (error) {
+      console.error('Get wallet error:', error);
+      res.status(500).json({ message: "Failed to get wallet info" });
     }
   });
 

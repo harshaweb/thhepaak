@@ -20,6 +20,8 @@ interface AuthContextType {
   placeBet: (betAmount: number) => Promise<void>;
   winBet: (betAmount: number, winnings: number) => Promise<void>;
   loseBet: (betAmount: number) => Promise<void>;
+  addFunds: (amount: number) => Promise<void>;
+  getWalletInfo: () => Promise<{ balance: number; holdBalance: number; availableBalance: number }>;
   isLoading: boolean;
 }
 
@@ -230,6 +232,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const addFunds = async (amount: number) => {
+    if (!user) throw new Error('No user logged in');
+    
+    try {
+      const response = await fetch(fullUrl('/api/wallet/add-funds'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: user.id, amount }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add funds');
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
+    } catch (error) {
+      console.error('Add funds error:', error);
+      throw error;
+    }
+  };
+
+  const getWalletInfo = async () => {
+    if (!user) throw new Error('No user logged in');
+    
+    try {
+      const response = await fetch(fullUrl(`/api/wallet/${user.id}`), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get wallet info');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Get wallet info error:', error);
+      throw error;
+    }
+  };
+
     return (
     <AuthContext.Provider value={{ 
       user, 
@@ -241,6 +292,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       placeBet,
       winBet,
       loseBet,
+      addFunds,
+      getWalletInfo,
       isLoading
     }}>
       {children}

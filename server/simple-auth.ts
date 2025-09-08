@@ -14,7 +14,7 @@ interface SimpleUser {
 }
 
 // Load users from file
-function loadUsers(): SimpleUser[] {
+export function loadUsers(): SimpleUser[] {
   try {
     if (fs.existsSync(USERS_FILE)) {
       const data = fs.readFileSync(USERS_FILE, 'utf8');
@@ -27,7 +27,7 @@ function loadUsers(): SimpleUser[] {
 }
 
 // Save users to file
-function saveUsers(users: SimpleUser[]): void {
+export function saveUsers(users: SimpleUser[]): void {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 }
 

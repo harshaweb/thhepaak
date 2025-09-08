@@ -58,10 +58,11 @@ interface TopUpModalProps {
 
 export default function TopUpModal({ isOpen, onClose, currentBalance, onTopUpComplete }: TopUpModalProps) {
   const [topUpAmount, setTopUpAmount] = useState<string>('');
-  const [step, setStep] = useState<'amount' | 'payment'>('amount');
+  const [step, setStep] = useState<'amount' | 'payment' | 'instant'>('amount');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isAddingFunds, setIsAddingFunds] = useState(false);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, addFunds } = useAuth();
 
   // Payment wallet addresses
   const WALLETS = {
@@ -107,7 +108,32 @@ export default function TopUpModal({ isOpen, onClose, currentBalance, onTopUpCom
       return;
     }
 
-    setStep('payment');
+    setStep('instant');
+  };
+
+  const handleInstantTopUp = async () => {
+    const amount = parseFloat(topUpAmount);
+    setIsAddingFunds(true);
+    
+    try {
+      await addFunds(amount);
+      toast({
+        title: "💰 Funds Added!",
+        description: `Successfully added $${amount.toFixed(2)} to your wallet`,
+      });
+      onTopUpComplete(amount);
+      onClose();
+      setTopUpAmount('');
+      setStep('amount');
+    } catch (error) {
+      toast({
+        title: "Top-up Failed",
+        description: error instanceof Error ? error.message : "Failed to add funds",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAddingFunds(false);
+    }
   };
 
   const handlePaymentConfirm = async () => {
@@ -226,13 +252,35 @@ export default function TopUpModal({ isOpen, onClose, currentBalance, onTopUpCom
               </p>
             </div>
 
-            <Button
-              onClick={handleAmountSubmit}
-              disabled={!topUpAmount}
-              className="w-full bg-green-600 hover:bg-green-700 font-retro py-2 text-white rounded-lg border-2 border-green-500 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="font-retro">Continue to Payment</span>
-            </Button>
+            <div className="space-y-2">
+              <Button
+                onClick={handleAmountSubmit}
+                disabled={!topUpAmount}
+                className="w-full bg-green-600 hover:bg-green-700 font-retro py-2 text-white rounded-lg border-2 border-green-500 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="font-retro">Continue to Payment</span>
+              </Button>
+              
+              <div className="text-center">
+                <span className="text-gray-400 font-retro text-xs">or</span>
+              </div>
+              
+              <Button
+                onClick={handleInstantTopUp}
+                disabled={!topUpAmount || isAddingFunds}
+                className="w-full bg-blue-600 hover:bg-blue-700 font-retro py-2 text-white rounded-lg border-2 border-blue-500 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isAddingFunds ? (
+                  <span className="font-retro">Adding Funds...</span>
+                ) : (
+                  <span className="font-retro">⚡ Instant Top-Up (Test)</span>
+                )}
+              </Button>
+              
+              <p className="text-gray-500 font-retro text-xs text-center">
+                Instant top-up is for testing purposes only
+              </p>
+            </div>
           </div>
         ) : (
           <div className="space-y-4 pt-2">
