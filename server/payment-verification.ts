@@ -1,5 +1,17 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 
+// Get current SOL price from CoinGecko
+async function getSOLPrice(): Promise<number> {
+  try {
+    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+    const data = await response.json();
+    return data.solana?.usd || 100; // Fallback to $100 if API fails
+  } catch (error) {
+    console.error('Failed to fetch SOL price:', error);
+    return 100; // Fallback price
+  }
+}
+
 // Hot wallet addresses for receiving verified payments
 const HOT_WALLETS = {
   SOL: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM', // Your main SOL hot wallet
@@ -32,6 +44,11 @@ async function verifySolanaPayment(
   try {
     console.log(`🔍 Checking Solana blockchain for payments to ${walletAddress} (expecting $${expectedAmount})`);
     
+    // Get current SOL price for better accuracy
+    const solPrice = await getSOLPrice();
+    const expectedSOL = expectedAmount / solPrice;
+    console.log(`💰 Current SOL price: $${solPrice.toFixed(2)}, Expected SOL amount: ${expectedSOL.toFixed(4)} SOL`);
+    
     const connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
     const publicKey = new PublicKey(walletAddress);
     
@@ -60,12 +77,12 @@ async function verifySolanaPayment(
               const balanceChange = (postBalances[i] - preBalances[i]) / 1e9; // Convert from lamports to SOL
               
               if (balanceChange > 0) { // Only positive balance changes (incoming)
-                const estimatedUSD = balanceChange * 150; // Rough SOL price estimate
+                const estimatedUSD = balanceChange * solPrice;
                 
                 console.log(`💰 Solana received: ${balanceChange} SOL (~$${estimatedUSD.toFixed(2)}) - Expected: $${expectedAmount}`);
                 
-                // Check if the amount matches (within 10% tolerance)
-                if (Math.abs(estimatedUSD - expectedAmount) < expectedAmount * 0.1) {
+                // Check if the amount matches (within 15% tolerance for price fluctuations)
+                if (Math.abs(estimatedUSD - expectedAmount) <= expectedAmount * 0.15) {
                   console.log(`✅ Solana payment verified! Transaction: ${sig.signature}`);
                   return {
                     verified: true,
