@@ -1332,7 +1332,7 @@ export default function Home() {
       
       {/* Daily Reward Already Taken Modal */}
       <Dialog open={isDailyRewardTakenOpen} onOpenChange={setIsDailyRewardTakenOpen}>
-        <DialogContent className="bg-gradient-to-br from-gray-800 to-gray-900 border-4 border-yellow-400 text-white max-w-md w-full mx-4 rounded-2xl shadow-2xl [&>button]:hidden">
+        <DialogContent className="bg-gradient-to-br from-gray-800 to-gray-900 border-4 border-yellow-400 text-white max-w-lg w-full mx-4 rounded-2xl shadow-2xl [&>button]:hidden">
           <DialogHeader>
             <DialogTitle className="text-center text-2xl font-retro text-yellow-300 mb-4">
               Daily Reward Already Claimed! 🎁
