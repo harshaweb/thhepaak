@@ -89,5 +89,13 @@
     "balance": 0.1,
     "holdBalance": 0,
     "lastDailyRewardClaim": "2025-09-08T23:40:55.310Z"
+  },
+  {
+    "id": "1757376247018",
+    "username": "punda",
+    "password": "temp123",
+    "balance": 0.1818541666666671,
+    "holdBalance": 0,
+    "lastDailyRewardClaim": "2025-09-09T00:04:18.226Z"
   }
 ]

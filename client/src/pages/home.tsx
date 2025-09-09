@@ -355,6 +355,7 @@ export default function Home() {
   
   // Daily reward modal state
   const [isDailyRewardOpen, setIsDailyRewardOpen] = useState(false);
+  const [isDailyRewardTakenOpen, setIsDailyRewardTakenOpen] = useState(false);
   
   // Wallet modal states
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
@@ -834,12 +835,17 @@ export default function Home() {
                 Logout
               </button>
               <button 
-                onClick={() => setIsDailyRewardOpen(true)}
-                disabled={!canClaimDailyReward()}
+                onClick={() => {
+                  if (canClaimDailyReward()) {
+                    setIsDailyRewardOpen(true);
+                  } else {
+                    setIsDailyRewardTakenOpen(true);
+                  }
+                }}
                 className={`px-3 py-1 text-sm border-2 font-retro flex items-center gap-1 ${
                   canClaimDailyReward() 
                     ? 'bg-yellow-600 text-white hover:bg-yellow-700 border-yellow-500' 
-                    : 'bg-gray-600 text-gray-300 border-gray-500 cursor-not-allowed'
+                    : 'bg-gray-600 text-gray-300 border-gray-500 cursor-pointer hover:bg-gray-500'
                 }`}
               >
                 <Gift className="w-4 h-4" />
@@ -1323,6 +1329,38 @@ export default function Home() {
         canClaim={canClaimDailyReward()}
         hoursUntilNext={getHoursUntilNextReward()}
       />
+      
+      {/* Daily Reward Already Taken Modal */}
+      <Dialog open={isDailyRewardTakenOpen} onOpenChange={setIsDailyRewardTakenOpen}>
+        <DialogContent className="bg-gradient-to-br from-gray-800 to-gray-900 border-4 border-yellow-400 text-white max-w-md w-full mx-4 rounded-2xl shadow-2xl [&>button]:hidden">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-retro text-yellow-300 mb-4">
+              Daily Reward Already Claimed! 🎁
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="text-center space-y-4">
+            <div className="bg-gradient-to-br from-yellow-800/40 to-yellow-900/60 border-4 border-yellow-400 rounded-2xl p-6 shadow-2xl">
+              <div className="text-yellow-300 text-lg mb-4 tracking-wider text-center font-retro-fixed">
+                ⏰ Come Back Later!
+              </div>
+              <div className="text-white text-xl mb-3 tracking-wide text-center font-retro-fixed">
+                You've already claimed your daily reward today
+              </div>
+              <p className="text-gray-200 text-sm tracking-wide text-center font-retro-fixed">
+                Next reward available in: <span className="text-yellow-300 font-bold">{getHoursUntilNextReward()} hours</span>
+              </p>
+            </div>
+            
+            <Button
+              onClick={() => setIsDailyRewardTakenOpen(false)}
+              className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 font-retro-fixed py-3 text-white rounded-xl border-4 border-yellow-400 text-lg font-bold tracking-wide shadow-lg hover:shadow-yellow-500/25 transition-all duration-200"
+            >
+              Got It!
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       {/* Top Up Modal */}
       <TopUpModal
