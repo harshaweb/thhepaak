@@ -1128,7 +1128,7 @@ export default function GamePage() {
 
     // Use environment-based WebSocket URL
     const wsUrl = import.meta.env.PROD 
-      ? import.meta.env.VITE_WS_URL || 'ws://thhepaak.onrender.com/ws'
+      ? import.meta.env.VITE_WS_URL || 'wss://thhepaak-backend.onrender.com/ws'
       : 'ws://localhost:3000/ws';
     
     const ws = new WebSocket(`${wsUrl}?region=${region}&room=${roomId}`);
