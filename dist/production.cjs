@@ -90,7 +90,7 @@ function loginUser(username, password) {
     // Don't return password
   };
 }
-function updateDailyRewardClaim(username) {
+function updateDailyRewardClaim(username, rewardAmount = 0.1) {
   const users = loadUsers();
   const userIndex = users.findIndex((u) => u.username === username);
   if (userIndex === -1) {
@@ -111,7 +111,7 @@ function updateDailyRewardClaim(username) {
     }
   }
   users[userIndex].lastDailyRewardClaim = now;
-  users[userIndex].balance += 0.2;
+  users[userIndex].balance += rewardAmount;
   saveUsers(users);
   return {
     success: true,
@@ -202,9 +202,22 @@ function loseBet(userId, betAmount) {
 
 // server/payment-verification.ts
 var import_web3 = require("@solana/web3.js");
+async function getSOLPrice() {
+  try {
+    const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
+    const data = await response.json();
+    return data.solana?.usd || 100;
+  } catch (error) {
+    console.error("Failed to fetch SOL price:", error);
+    return 100;
+  }
+}
 async function verifySolanaPayment(walletAddress, expectedAmount, timeWindow = 30 * 60 * 1e3) {
   try {
     console.log(`\u{1F50D} Checking Solana blockchain for payments to ${walletAddress} (expecting $${expectedAmount})`);
+    const solPrice = await getSOLPrice();
+    const expectedSOL = expectedAmount / solPrice;
+    console.log(`\u{1F4B0} Current SOL price: $${solPrice.toFixed(2)}, Expected SOL amount: ${expectedSOL.toFixed(4)} SOL`);
     const connection = new import_web3.Connection("https://api.mainnet-beta.solana.com", "confirmed");
     const publicKey = new import_web3.PublicKey(walletAddress);
     console.log(`\u{1F310} Fetching Solana transactions...`);
@@ -224,9 +237,9 @@ async function verifySolanaPayment(walletAddress, expectedAmount, timeWindow = 3
             if (transaction.transaction.message.staticAccountKeys[i].toString() === walletAddress) {
               const balanceChange = (postBalances[i] - preBalances[i]) / 1e9;
               if (balanceChange > 0) {
-                const estimatedUSD = balanceChange * 150;
+                const estimatedUSD = balanceChange * solPrice;
                 console.log(`\u{1F4B0} Solana received: ${balanceChange} SOL (~$${estimatedUSD.toFixed(2)}) - Expected: $${expectedAmount}`);
-                if (Math.abs(estimatedUSD - expectedAmount) < expectedAmount * 0.1) {
+                if (Math.abs(estimatedUSD - expectedAmount) <= expectedAmount * 0.15) {
                   console.log(`\u2705 Solana payment verified! Transaction: ${sig.signature}`);
                   return {
                     verified: true,
@@ -414,11 +427,11 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/auth/claim-daily-reward", (req, res) => {
     try {
-      const { username } = req.body;
+      const { username, rewardAmount } = req.body;
       if (!username) {
         return res.status(400).json({ message: "Username required" });
       }
-      const result = updateDailyRewardClaim(username);
+      const result = updateDailyRewardClaim(username, rewardAmount);
       if (result.success) {
         res.json({
           user: result.user,
@@ -450,6 +463,57 @@ async function registerRoutes(app2) {
     } catch (error) {
       console.error("Username update error:", error);
       res.status(400).json({ message: "Failed to update username" });
+    }
+  });
+  app2.post("/api/wallet/add-funds", (req, res) => {
+    try {
+      const { userId, amount } = req.body;
+      if (!userId || !amount) {
+        return res.status(400).json({ message: "User ID and amount required" });
+      }
+      if (amount <= 0) {
+        return res.status(400).json({ message: "Amount must be greater than 0" });
+      }
+      if (amount > 1e4) {
+        return res.status(400).json({ message: "Maximum top-up amount is $10,000" });
+      }
+      const users = loadUsers();
+      const userIndex = users.findIndex((u) => u.id === userId);
+      if (userIndex === -1) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      users[userIndex].balance += amount;
+      saveUsers(users);
+      res.json({
+        success: true,
+        message: `Successfully added $${amount.toFixed(2)} to your wallet`,
+        newBalance: users[userIndex].balance,
+        user: { ...users[userIndex], password: "" }
+      });
+    } catch (error) {
+      console.error("Add funds error:", error);
+      res.status(500).json({ message: "Failed to add funds" });
+    }
+  });
+  app2.get("/api/wallet/:userId", (req, res) => {
+    try {
+      const { userId } = req.params;
+      if (!userId) {
+        return res.status(400).json({ message: "User ID required" });
+      }
+      const users = loadUsers();
+      const user = users.find((u) => u.id === userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({
+        balance: user.balance,
+        holdBalance: user.holdBalance,
+        availableBalance: user.balance - user.holdBalance
+      });
+    } catch (error) {
+      console.error("Get wallet error:", error);
+      res.status(500).json({ message: "Failed to get wallet info" });
     }
   });
   app2.post("/api/game/place-bet", (req, res) => {
