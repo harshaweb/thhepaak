@@ -1128,7 +1128,7 @@ export default function GamePage() {
 
     // Use environment-based WebSocket URL
     const wsUrl = import.meta.env.PROD 
-      ? import.meta.env.VITE_WS_URL || 'wss://thhepaak-backend.onrender.com/ws'
+      ? import.meta.env.VITE_WS_URL || 'ws://thhepaak-backend.onrender.com/ws'
       : 'ws://localhost:3000/ws';
     
     const ws = new WebSocket(`${wsUrl}?region=${region}&room=${roomId}`);
@@ -1380,7 +1380,7 @@ export default function GamePage() {
           if (gameStarted && !wsRef.current) {
             console.log("Auto-reconnecting to multiplayer server...");
             // Create new WebSocket connection
-            const newSocket = new WebSocket(`ws://localhost:3000/ws?room=${roomId}&region=${region}`);
+            const newSocket = new WebSocket(`ws://thhepaak-backend.onrender.com/ws?room=${roomId}&region=${region}`);
             wsRef.current = newSocket;
             
             // Set up handlers for new connection

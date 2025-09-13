@@ -12,7 +12,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 app.use((req, res, next) => {
   // In production, allow specific origins or use environment variable
   const allowedOrigins = isProduction 
-    ? [process.env.FRONTEND_URL || 'http://localhost:3000']
+    ? [process.env.FRONTEND_URL || 'https://thhepaak-backend.onrender.com']
     : ['*'];
   
   const origin = req.get('origin');
